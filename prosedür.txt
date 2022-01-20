@@ -1,0 +1,26 @@
+CREATE PROCEDURE Test @Malkodu AS VARCHAR(100),@StartDate AS DATETIME,@FinishDate AS DATETIME
+AS
+DECLARE @Salary int = 0 ;
+--SiraNo, IslemTur, EvrakNo, Tarih, GirisMiktar, CikisMiktar, Stok
+
+select  STI.ID SiraNo,CASE STI.IslemTur
+WHEN 0 THEN 'Giris'
+WHEN 1 THEN 'Çýkýþ'  
+END AS IslemTur,STI.EvrakNo,CONVERT(varchar(15),CAST(STI.Tarih - 2 AS datetime),104) AS Tarih,
+CASE STI.IslemTur
+WHEN 0 THEN STI.Miktar
+ELSE 0 
+end AS GirisMiktar,
+CASE STI.IslemTur
+WHEN 1 THEN STI.Miktar
+ELSE 0 
+end AS CikisMiktar,@Salary AS StockMiktar
+ from dbo.STI(NOLOCK) STI
+ INNER JOIN dbo.STK(NOLOCK) STK ON STK.MalKodu=STI.MalKodu
+ WHERE (STK.MalKodu like '%'+@Malkodu+'%' OR STK.MalAdi like '%'+@Malkodu+'%') AND STI.Tarih BETWEEN @StartDate AND @FinishDate
+ ORDER BY STI.ID ASC
+
+
+GO
+
+
